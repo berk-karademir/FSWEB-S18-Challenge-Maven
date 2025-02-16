@@ -1,33 +1,38 @@
 package com.workintech.fswebs18challengemaven.controller;
 
-
 import com.workintech.fswebs18challengemaven.entity.Card;
+import com.workintech.fswebs18challengemaven.exceptions.CardException;
 import com.workintech.fswebs18challengemaven.repository.CardRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.workintech.fswebs18challengemaven.util.CardValidation;
+import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
+@CrossOrigin("*")
+@AllArgsConstructor
 @RestController
 @RequestMapping("/cards")
 public class CardController {
 
+    private final CardRepository cardRepository;
 
-    private CardRepository cardRepository;
-
-    public CardController(CardRepository cardRepository) {
-        this.cardRepository = cardRepository;
+    @PostMapping
+    public Card save(@RequestBody Card card) {
+        CardValidation.checkCard(card);
+        return cardRepository.save(card);
     }
 
-    // by order on readme
     @GetMapping
-    public List<Card> findAll() {
+    public List<Card> getAll() {
         return cardRepository.findAll();
     }
 
     @GetMapping("/byColor/{color}")
-    public List<Card> findByColor(@PathVariable("color") String cardColor) {
-        return cardRepository.findByColor(cardColor);
+    public List<Card> getAllByColor(@PathVariable("color") String color) {
+        return cardRepository.findByColor(color);
     }
 
     @GetMapping("byValue/{value}")
@@ -40,24 +45,16 @@ public class CardController {
         return cardRepository.findByType(type);
     }
 
-
-    @PostMapping
-    public Card save(@RequestBody Card card) {
-        return cardRepository.save(card);
-    }
-
-
-
     @PutMapping("/{id}")
-    public Card updateWithID(@PathVariable("id") Long id, @RequestBody Card card) {
+    public Card update(@PathVariable("id") Long id, @RequestBody Card card) {
         card.setId(id);
         return cardRepository.update(card);
     }
 
-
     @DeleteMapping("/{id}")
-    public Card removeWithID(@PathVariable("id") Long id) {
-        return cardRepository.remove(id);
+    public void delete(@PathVariable Long id) {
+
+        cardRepository.remove(id);
     }
 
 }
